@@ -50,12 +50,12 @@
 <div class="wrap">
   <header><h1>Radar 简报 · 2026-09-16</h1></header>
   <nav class="share" aria-label="分享">
-    <span class="label">分享</span>
-    <button type="button" class="primary" id="btn-copy-link">复制链接</button>
-    <button type="button" id="btn-copy-text">复制提要</button>
+    <span class="label">分享正文</span>
+    <button type="button" class="primary" id="btn-copy-text">复制正文</button>
     <a class="btn" id="btn-tg" target="_blank" rel="noopener">Telegram</a>
     <a class="btn" id="btn-x" target="_blank" rel="noopener">X</a>
     <a class="btn" id="btn-mail" target="_blank" rel="noopener">邮件</a>
+    <button type="button" id="btn-copy-link">复制页面链接</button>
     <span class="toast" id="toast">已复制</span>
   </nav>
   <article id="brief">
@@ -122,7 +122,7 @@
 <li><a href="https://github.com/THU-MAIC/OpenMAIC" target="_blank" rel="noopener">THU-MAIC/OpenMAIC</a> — TypeScript · ⭐ 37,325（+3,698） · 开源多智能体互动课堂，一键沉浸式学习体验。 · 周榜</li>
 </ul>
   </article>
-  <footer>Radar · 标题即原文链接</footer>
+  <footer>Radar · 社媒分享默认发正文 · 标题可点开原文</footer>
 </div>
 <script>
 (function () {
@@ -137,42 +137,55 @@
     if (location.protocol === 'http:' || location.protocol === 'https:') return location.href.split('#')[0];
     return '';
   }
-  function refreshShareTargets() {
-    const url = pageUrl() || location.href;
-    const text = title + ' · Radar 早报';
-    document.getElementById('btn-tg').href =
-      'https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text);
-    document.getElementById('btn-x').href =
-      'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url);
-    document.getElementById('btn-mail').href =
-      'mailto:?subject=' + encodeURIComponent(text) + '&body=' + encodeURIComponent(text + '\n\n' + url);
-  }
-  async function copy(text) {
-    try { await navigator.clipboard.writeText(text); showToast('已复制'); }
-    catch (e) {
-      const ta = document.createElement('textarea');
-      ta.value = text; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta); showToast('已复制');
-    }
-  }
-  document.getElementById('btn-copy-link').addEventListener('click', () => {
-    const url = pageUrl();
-    if (!url) { showToast('需要先发布到网页才能复制公开链接'); return; }
-    copy(url);
-  });
-  document.getElementById('btn-copy-text').addEventListener('click', () => {
+  // Share the brief body (section + titles [+ source URLs]), not the Pages link.
+  function buildBody(includeSourceUrls) {
     const lines = [title, ''];
     document.querySelectorAll('article h2').forEach(h => {
       lines.push('【' + h.textContent + '】');
       let n = h.nextElementSibling;
       if (n && n.tagName === 'UL') {
-        n.querySelectorAll('a').forEach(a => lines.push('- ' + a.textContent + ' ' + a.href));
+        n.querySelectorAll('li').forEach(li => {
+          const a = li.querySelector('a');
+          if (!a) return;
+          const rest = (li.textContent || '').replace(a.textContent, '').replace(/^\s*—\s*/, '').trim();
+          const line = '• ' + a.textContent + (rest ? ' — ' + rest : '');
+          if (includeSourceUrls) lines.push(line + '\n  ' + a.href);
+          else lines.push(line);
+        });
       }
       lines.push('');
     });
+    return lines.join('\n').trim();
+  }
+  function refreshShareTargets() {
+    const bodyFull = buildBody(true);
+    let bodyShort = buildBody(false);
+    if (bodyShort.length > 260) bodyShort = bodyShort.slice(0, 257) + '...';
+    // Telegram: body in text. Dummy url avoids clients requiring a URL while not promoting the page.
+    document.getElementById('btn-tg').href =
+      'https://t.me/share/url?url=' + encodeURIComponent('https://t.me') +
+      '&text=' + encodeURIComponent(bodyFull);
+    // X: text only (no url= page link)
+    document.getElementById('btn-x').href =
+      'https://twitter.com/intent/tweet?text=' + encodeURIComponent(bodyShort);
+    document.getElementById('btn-mail').href =
+      'mailto:?subject=' + encodeURIComponent(title + ' · Radar 早报') +
+      '&body=' + encodeURIComponent(bodyFull);
+  }
+  async function copy(text, okMsg) {
+    try { await navigator.clipboard.writeText(text); showToast(okMsg || '已复制'); }
+    catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast(okMsg || '已复制');
+    }
+  }
+  document.getElementById('btn-copy-text').addEventListener('click', () => copy(buildBody(true), '已复制正文'));
+  document.getElementById('btn-copy-link').addEventListener('click', () => {
     const url = pageUrl();
-    if (url) lines.push(url);
-    copy(lines.join('\n'));
+    if (!url) { showToast('需要先发布到网页'); return; }
+    copy(url, '已复制页面链接');
   });
   refreshShareTargets();
 })();
