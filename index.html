@@ -39,6 +39,8 @@
     font-size: 1.1rem; margin: 28px 0 10px; padding-bottom: 6px;
     border-bottom: 1px solid var(--border); color: var(--accent);
   }
+  h3 { font-size: 1rem; margin: 18px 0 6px; color: var(--text); }
+  p.label { margin: 8px 0 4px; color: var(--muted); font-size: .9rem; }
   ul { padding-left: 1.15rem; margin: 0 0 8px; }
   li { margin: 0 0 10px; }
   a { color: var(--accent); text-decoration: none; }
@@ -119,6 +121,17 @@
 <li><a href="https://www.reddit.com/r/AmazonDSPDrivers/comments/1wsepav/" target="_blank" rel="noopener">亚马逊 DSP：还没到 Peak，路线已「爆」</a> — Peak 前强度已压线上；停数/公寓占比攀升，救援与退出讨论升温。 · r/AmazonDSPDrivers</li>
 <li><a href="https://www.reddit.com/r/UPSers/comments/1wqogxr/" target="_blank" rel="noopener">UPS：RFID 员工追踪会议据报推进中</a> — 一线称 RFID 技术会议上线在即；末端追踪与隐私/劳资博弈再起。 · r/UPSers</li>
 <li><a href="https://www.reddit.com/r/logistics/comments/1wsgdsu/" target="_blank" rel="noopener">物流：对 FMCSA 提起诉讼，挑战无人卡车监管路径</a> — 车主运营商入禀第七巡回上诉法院，指向无人卡车监管与道路安全规则。 · r/logistics</li>
+</ul><h3>中资/跨境末端快递</h3><ul>
+</ul><p class="label"><strong>新闻</strong></p><ul>
+<li><a href="https://www.newswire.ca/news-releases/uniuni-announces-term-sheet-for-new-private-funding-round-840646417.html" target="_blank" rel="noopener">UniUni 与现有投资人签署新一轮私募融资条款书</a> — UniUni · 2026-09-25 · 称资金用于旺季运营与北美增长；紧接 SPAC 方违约通知之后。 · PR Newswire Canada</li>
+<li><a href="https://www.theglobeandmail.com/business/article-matthew-proud-led-spac-threatens-to-pull-out-of-merger-with-delivery/" target="_blank" rel="noopener">SPAC 方 MAK 向 UniUni 发违约通知，称其财务表现恶化、拟退出合并</a> — UniUni · 2026-09-24 · 5 月达成的约 10 亿美元合并生变，给 15 个工作日补救期。 · The Globe and Mail</li>
+<li><a href="https://betakit.com/uniuni-seeks-new-round-of-private-funding-as-spac-deal-falters/" target="_blank" rel="noopener">SPAC 交易动摇，UniUni 转向私募续命</a> — UniUni · 2026-09-25 · 加拿大科技媒体梳理违约通知与新融资的前后脉络。 · BetaKit</li>
+<li><a href="https://www.prnewswire.com/news-releases/gofo-highlights-shifts-in-us-parcel-delivery-at-parcel-forum-2026-releases-new-industry-white-paper-302889591.html" target="_blank" rel="noopener">GOFO 在 PARCEL Forum 2026 发布美国尾程配送行业白皮书</a> — GOFO · 2026-09-24 · 主题为电商碎片化重塑美国尾程；北美 CSO 参加区域承运商论坛。 · PR Newswire</li>
+<li><a href="https://www.latribune.fr/article/economie/1821313161304214/livraison-de-petit-colis-gofo-tisse-sa-toile-en-europe-depuis-lyon" target="_blank" rel="noopener">法媒：GOFO 以里昂为据点扩张欧洲小包配送</a> — GOFO · 2026-09-18 · 经收购 Cirro Parcel 进入法国，里昂新自动分拣系统计划 11 月底启用；报道称股东有中资背景。 · La Tribune</li>
+<li><a href="https://www.classaction.org/uniuni-delivery-driver-misclassification-lawsuit" target="_blank" rel="noopener">律所调查 UniUni 是否把司机错误归类为独立承包商</a> — UniUni · 2026-09-09 · 律所征集当事人阶段，尚未正式起诉。 · ClassAction.org</li>
+</ul><p class="label"><strong>一线/投诉</strong></p><ul>
+<li><a href="https://www.reddit.com/r/shipping/comments/1wrgcj5/gofo_lost_my_package_not_sure_why_the_status_just/" target="_blank" rel="noopener">GOFO 包裹 22 天无更新，客服四次说法不一</a> — GOFO · 2026-09-27 · r/shipping</li>
+<li><a href="https://www.reddit.com/r/vinted/comments/1wqufa0/first_vinted_sale_buyer_selected_speedx_is_this_a/" target="_blank" rel="noopener">Vinted 首单买家选 SpeedX，卖家找不到投递点</a> — SpeedX · 2026-09-26 · Vinted US 已接入 SpeedX 面单，同题帖在 r/VintedUS、r/reselling 重复出现。 · r/vinted</li>
 </ul>
 <h2>GitHub 高星 / 趋势</h2><ul>
 <li><a href="https://github.com/vectorize-io/hindsight" target="_blank" rel="noopener">vectorize-io/hindsight</a> — Python · ⭐ 39,983（+11,089） · Hindsight：会学习的 Agent Memory。 · 日/周榜</li>
@@ -151,8 +164,10 @@
     const lines = [title, ''];
     document.querySelectorAll('article h2').forEach(h => {
       lines.push('【' + h.textContent + '】');
-      let n = h.nextElementSibling;
-      if (n && n.tagName === 'UL') {
+      for (let n = h.nextElementSibling; n && n.tagName !== 'H2'; n = n.nextElementSibling) {
+        if (n.tagName === 'H3') { lines.push('〔' + n.textContent + '〕'); continue; }
+        if (n.tagName === 'P') { lines.push(n.textContent); continue; }
+        if (n.tagName !== 'UL') continue;
         n.querySelectorAll('li').forEach(li => {
           const a = li.querySelector('a');
           if (!a) return;
